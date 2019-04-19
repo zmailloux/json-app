@@ -12,6 +12,11 @@ pipeline {
     }
 
     stages {
+        stage('quick'){
+            steps{
+                sh 'ls'
+            }
+        }
         stage('Build'){
             steps{
                 sh "mvn release:update-versions -DdevelopmentVersion=1.0.0"
