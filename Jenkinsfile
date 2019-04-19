@@ -4,7 +4,7 @@ pipeline {
     tools {
         maven 'maven-3.5.4'
         jdk 'jdk-8'
-        nodejs "NodeJS"
+        nodejs "node"
     }
     environment {
         BUILD_COLOR = ""
