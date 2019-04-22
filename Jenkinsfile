@@ -20,6 +20,7 @@ pipeline {
         stage('Build'){
             steps{
                 sh "mvn release:update-versions -DdevelopmentVersion=1.0.0"
+                sh "echo ${BUILD_NUMBER}"
                 //sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-${RELEASE_ENVIRONMENT}-SNAPSHOT -s ${M2_SETTINGS}"
 
                 // -DskipMunitTests is a temporary fix and should be removed
