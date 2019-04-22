@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ra.one</groupId>
 	<artifactId>json-app</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>mule</packaging>
 	<name>Mule json-app API.</name>
 	<properties>
