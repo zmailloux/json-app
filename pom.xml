@@ -2,23 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.ra.one</groupId>
+	<groupId>6f2ecc0b-8a4c-4fb9-8926-e0e72f44e39f</groupId>
 	<artifactId>json-app</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
-	<packaging>mule</packaging>
-	<name>Mule json-app API.</name>
-	<properties>
+    <version>1.0.1</version>
+    <packaging>mule</packaging>
+	<name>testing-app</name>
+
+    <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<mule.version>3.8.4</mule.version>
-		<mule.tools.version>1.2</mule.tools.version>
-	<munit.version>1.3.8</munit.version>
-		<mule.munit.support.version>3.8.6</mule.munit.support.version>
-    <!-- <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target> -->
-		<jacoco.version>0.8.2</jacoco.version>
-		<junit.version>4.12</junit.version>
-	</properties>
+
+		<mule.version>3.9.2</mule.version>
+    	<mule.tools.version>1.7</mule.tools.version>
+	
+    <type>template</type>
+    </properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -27,23 +26,7 @@
 				<version>${mule.tools.version}</version>
 				<extensions>true</extensions>
 				<configuration>
-					<copyToAppsDirectory>true</copyToAppsDirectory>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.mule.tools</groupId>
-				<artifactId>maven-mule-plugin</artifactId>
-				<version>1.9</version>
-				<extensions>true</extensions>
-				<configuration>
-					<excludeMuleDependencies>false</excludeMuleDependencies>
-					<copyToAppsDirectory>true</copyToAppsDirectory>
-					<inclusions>
-						<inclusion>
-							<groupId>org.mule.modules</groupId>
-							<artifactId>mule-module-requester</artifactId>
-						</inclusion>
-					</inclusions>
+                    <copyToAppsDirectory>true</copyToAppsDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -64,107 +47,34 @@
 								</resource>
 								<resource>
 									<directory>src/main/api/</directory>
-									<targetPath>api</targetPath>
 								</resource>
 								<resource>
 									<directory>mappings/</directory>
 								</resource>
-								<resource>
-									<directory>src/main/resources</directory>
-								</resource>
 							</resources>
-
-							<testResources>
-								<testResource>
-									<directory>src/test/munit</directory>
-								</testResource>
-								<testResource>
-									<directory>src/test/resources</directory>
-								</testResource>
-							</testResources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.mulesoft.munit.tools</groupId>
-				<artifactId>munit-maven-plugin</artifactId>
-				<version>${munit.version}</version>
-				<executions>
-					<execution>
-						<id>test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<coverage>
-						<runCoverage>true</runCoverage>
-						<failBuild>true</failBuild>
-						<requiredApplicationCoverage>0</requiredApplicationCoverage>
-						<requiredResourceCoverage>0</requiredResourceCoverage>
-						<requiredFlowCoverage>0</requiredFlowCoverage>
-						<formats>
-							<format>html</format>
-						</formats>
-					</coverage>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco.version}</version>
-				<executions>
-					<execution>
-						<id>default-prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>default-report</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>default-check</id>
-						<goals>
-							<goal>check</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<rule>
-									<element>BUNDLE</element>
-									<limits>
-										<limit>
-											<counter>COMPLEXITY</counter>
-											<value>COVEREDRATIO</value>
-											<minimum>0</minimum>
-										</limit>
-									</limits>
-								</rule>
-							</rules>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
-		<testResources>
-			<testResource>
-				<directory>src/test/munit</directory>
-			</testResource>
-			<testResource>
-				<directory>src/test/resources</directory>
-			</testResource>
-		</testResources>
 	</build>
 
 	<!-- Mule Dependencies -->
 	<dependencies>
+		<!-- Xml configuration -->
+		<dependency>
+        	<groupId>com.mulesoft.muleesb</groupId>
+			<artifactId>mule-core-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Xml configuration -->
+		<dependency>
+			<groupId>com.mulesoft.muleesb.modules</groupId>
+			<artifactId>mule-module-spring-config-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- Mule Transports -->
 		<dependency>
 			<groupId>org.mule.transports</groupId>
@@ -179,19 +89,20 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mule.transports</groupId>
-			<artifactId>mule-transport-vm</artifactId>
+        	<groupId>com.mulesoft.muleesb.transports</groupId>
+			<artifactId>mule-transport-jdbc-ee</artifactId>
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.mule.transports</groupId>
-            <artifactId>mule-transport-quartz</artifactId>
-            <version>${mule.version}</version>
-        </dependency>
+        	<groupId>com.mulesoft.muleesb.transports</groupId>
+			<artifactId>mule-transport-jms-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.mule.transports</groupId>
-			<artifactId>mule-transport-ssl</artifactId>
+			<artifactId>mule-transport-vm</artifactId>
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
@@ -208,75 +119,6 @@
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-requester</artifactId>
-			<version>1.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-json</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-http</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-spring-config</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-validation</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-apikit</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-objectstore</artifactId>
-			<version>1.3.3</version>
-		</dependency>
-		<!-- Mule Api Gateway -->
-        <dependency>
-            <groupId>com.mulesoft.anypoint</groupId>
-            <artifactId>api-gateway-client</artifactId>
-            <version>${mule.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mulesoft.anypoint</groupId>
-            <artifactId>gateway-core</artifactId>
-            <version>${mule.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mulesoft.anypoint</groupId>
-            <artifactId>mule-module-spring-config-gw</artifactId>
-            <version>${mule.version}</version>
-        </dependency>
-		<!-- Munit support -->
-		<dependency>
-            <groupId>com.mulesoft.munit</groupId>
-            <artifactId>mule-munit-support</artifactId>
-            <version>${mule.munit.support.version}</version>
-            <scope>test</scope>
-        </dependency>
-    	<dependency>
-            <groupId>com.mulesoft.munit</groupId>
-            <artifactId>munit-runner</artifactId>
-            <version>${munit.version}</version>
-            <scope>test</scope>
-        </dependency>
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.mule.tests</groupId>
@@ -284,91 +126,51 @@
 			<version>${mule.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- <dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
-		</dependency> -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aspects</artifactId>
-			<version>3.1.2.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>com.rockwell</groupId>
-			<artifactId>ra.auth.flow</artifactId>
-			<version>2.3.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/app/lib/ra.auth.flow-2.3.0.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>com.rockwell</groupId>
-			<artifactId>ra.auth.java</artifactId>
-			<version>2.3.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/app/lib/ra.auth.java-2.3.0.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-            <groupId>com.mulesoft.weave</groupId>
-            <artifactId>mule-plugin-weave</artifactId>
-            <version>${mule.version}</version>
-            <scope>provided</scope>
-        </dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.8.5</version>
-		</dependency>
-<!--     <dependency>
-            <groupId>com.mulesoft.muleesb.modules</groupId>
-            <artifactId>mule-module-batch-ee</artifactId>
+	<dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-apikit</artifactId>
             <version>${mule.version}</version>
             <scope>provided</scope>
         </dependency> -->
     </dependencies>
 
 	<repositories>
-		<repository>
-			<id>Central</id>
-			<name>Central</name>
-			<url>http://repo1.maven.org/maven2/</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>mulesoft-releases</id>
-			<name>MuleSoft Releases Repository</name>
-			<url>http://repository.mulesoft.org/releases/</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>mulesoft-snapshots</id>
-			<name>MuleSoft Snapshot Repository</name>
-			<url>http://repository.mulesoft.org/snapshots/</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>mulesoft-public</id>
-			<name>MuleSoft Public Repository</name>
-			<url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-			<layout>default</layout>
-		</repository>
-
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>mulesoft-release</id>
-			<name>mulesoft release repository</name>
-			<layout>default</layout>
-			<url>http://repository.mulesoft.org/releases/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
+          <repository>
+            <id>Central</id>
+            <name>Central</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-release</id>
+            <name>mulesoft release repository</name>
+            <layout>default</layout>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    
+    <distributionManagement>
+    <repository>
+        <id>central</id>
+        <name>artifactory-artifactory-0-releases</name>
+        <url>http://35.192.53.59:80/artifactory/json-app</url>
+    </repository>
+    <snapshotRepository>
+        <id>snapshots</id>
+        <name>artifactory-artifactory-0-snapshots</name>
+        <url>http://35.192.53.59:80/artifactory/json-app</url>
+    </snapshotRepository>
+</distributionManagement>
 
 </project>
