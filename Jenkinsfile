@@ -30,7 +30,7 @@ pipeline {
                 sh "echo ${BUILD_NUMBER}"
                 sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-SNAPSHOT -s ${M2_SETTINGS}"
                 // -DskipMunitTests is a temporary fix and should be removed
-                sh "mvn -B clean verify -DskipMunitTests"
+                sh "mvn -B clean verify -DskipMunitTests -s ${M2_SETTINGS}"
             }
 
             post {
