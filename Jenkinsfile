@@ -17,6 +17,7 @@ pipeline {
         //RELEASE_VERSION = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/').first() : null }"
         //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
         //BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
+        BRANCH_NAME = "${GIT_BRANCH.split('/')[1] : GIT_BRANCH }"
         API_NAME = "json-app"
     }
 
@@ -27,7 +28,7 @@ pipeline {
                 if (BRANCH_NAME == 'dev/master') {
                     BUILD_IDENTIFIER = ""
                 } else {
-                    BUILD_IDENTIFIER = "-${GIT_BRANCH}"
+                    BUILD_IDENTIFIER = "-${BRANCH_NAME}"
                 }
                 BUILD_NAME = "0.1.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
             }
@@ -178,9 +179,7 @@ pipeline {
     post {
       always {
         script {
-          BUILD_COLOR = COLOR_MAP[currentBuild.currentResult]
-          // DISPLAY_NAME = currentBuild.rawBuild.project.parent.displayName
-        }
+          BUILD_COLOR = COLOR_MAP[currentBuild.currentResult]        }
 
       }
       success {
@@ -191,17 +190,6 @@ pipeline {
           if (fileExists("target/site/jacoco")) {
             zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
           }
-          // if (fileExists("target/munit-reports/coverage") || fileExists("target/site/jacoco")) {
-          //   emailext(
-          //     recipientProviders: [
-          //       [$class: 'DevelopersRecipientProvider'],
-          //       [$class: 'CulpritsRecipientProvider']
-          //     ],
-          //     subject: "${JOB_BASE_NAME} | ${GIT_BRANCH}: Test Reports",
-          //     body: "Test Reports attached",
-          //     attachmentsPattern: "*-report.zip"
-          //   )
-          // }
         }
       }
 
