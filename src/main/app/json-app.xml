@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     
     <!-- ************ -->
-    <context:property-placeholder location="${mule.env}.properties" />
+    <!-- <context:property-placeholder location="${mule.env}.properties" /> -->
     <global-property name="example" value="test"/>
     
     <!-- ************ -->
@@ -25,7 +25,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     
     <flow name="version-app">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/version" allowedMethods="GET" doc:name="HTTP"/>
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/env" allowedMethods="GET" doc:name="HTTP"/>
         <set-payload value="${mule.env}" doc:name="Set Payload"/>
     </flow>
     

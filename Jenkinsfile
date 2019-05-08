@@ -13,15 +13,20 @@ pipeline {
     }
     environment {
         BUILD_COLOR = ""
+        //RELEASE_VERSION = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/').first() : null }"
+        //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
+        script {
+            if (env.BRANCH_NAME == 'dev/master') {
+                BUILD_IDENTIFIER = "${BUILD_NUMBER}"
+            } else {
+                BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
+            }
+        }
+        //BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
         API_NAME = "json-app"
     }
 
     stages {
-        stage('quick'){
-            steps{
-                sh 'ls'
-            }
-        }
         stage('Build'){
             steps{
                 // M2_SETTINGS are special maven settings we have that include
@@ -31,7 +36,7 @@ pipeline {
                 // and create 'M2_SETTINGS' with a path to your settings.xml file.
                 sh "echo ${M2_SETTINGS}"
                 sh "echo ${BUILD_NUMBER}"
-                sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-SNAPSHOT -s ${M2_SETTINGS}"
+                sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_IDENTIFIER}-SNAPSHOT -s ${M2_SETTINGS}"
                 // -DskipMunitTests is a temporary fix and should be removed
                 sh "mvn -B clean verify -DskipMunitTests -s ${M2_SETTINGS}"
             }
@@ -61,17 +66,17 @@ pipeline {
         stage('Deployment'){
             stages{
                 stage('Development - Deploy'){
+                    when{
+                        not {
+                            changeRequest()
+                        }
+                        expression { GIT_BRANCH.matches(".*/dev/master") && currentBuild.currentResult == 'SUCCESS' }
+                    }
                     environment {
                         ANYPOINT_USERNAME = "zmailloux" // This needs to change to a ci account
                         // https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
                         ANYPOINT_PASSWORD = credentials('anypoint-password')
                     }
-                    // when{
-                    //     not {
-                    //         changeRequest()
-                    //     }
-                    //     expression { GIT_BRANCH.matches(".*/master") && currentBuild.currentResult == 'SUCCESS' }
-                    // }
                     steps{
                         // script{
                         //     ANYPOINT_ENV = ENV_MAPPING[RELEASE_ENVIRONMENT]['env']
