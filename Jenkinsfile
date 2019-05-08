@@ -28,8 +28,8 @@ pipeline {
                 } else {
                     BUILD_IDENTIFIER = "-${GIT_BRANCH}"
                 }
+                BUILD_NAME = "1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
             }
-            BUILD_NAME = "1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
           }
         }
 
