@@ -1,4 +1,5 @@
 def ENV_MAPPING = [ 'dev': [ 'env' : 'Development', 'app': 'json-app-dev'], 'uat': [ 'env' : 'QA', 'app': 'json-app-qa']]
+def COLOR_MAP = ['SUCCESS': 'good', 'FAILURE': 'danger', 'UNSTABLE': 'danger', 'ABORTED': 'danger']
 
 
 pipeline {
