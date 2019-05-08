@@ -94,6 +94,8 @@ pipeline {
                       buildInfo.name = "${API_NAME}${BUILD_IDENTIFIER}"
                       server.upload spec: uploadSpec, buildInfo: buildInfo
                       server.publishBuildInfo buildInfo
+                      sh "echo ${buildInfo}"
+                      sh "echo ${uploadSpec}"
                       sh "echo ${BRANCH_NAME}"
 
                       if (BRANCH_NAME == 'dev/master') {
@@ -127,30 +129,42 @@ pipeline {
 
         stage('Deployment'){
             stages{
-                stage('Development - Deploy'){
+
+              stage('Development - Deploy'){
                     when{
-                        expression { GIT_BRANCH.matches(".*dev/master") && currentBuild.currentResult == 'SUCCESS' }
-                    }
-                    // Abstract out into another job
-                    environment {
-                        ANYPOINT_USERNAME = "zmailloux" // This needs to change to a ci account
-                        // https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
-                        ANYPOINT_PASSWORD = credentials('anypoint-password')
+                        not {
+                            changeRequest()
+                        }
+                        expression { GIT_BRANCH.matches(".*/dev/master") && currentBuild.currentResult == 'SUCCESS' }
                     }
                     steps{
-                        // script{
-                        //     ANYPOINT_ENV = ENV_MAPPING[RELEASE_ENVIRONMENT]['env']
-                        // }
-                        sh 'npm install anypoint-cli@latest'
-                        // Original
-                        //sh "./node_modules/anypoint-cli/src/app.js --environment=${ENV_MAPPING[RELEASE_ENVIRONMENT]['env']} runtime-mgr cloudhub-application modify ${ENV_MAPPING[RELEASE_ENVIRONMENT]['app']} target/${API_NAME}-1.0.${BUILD_NUMBER}-${RELEASE_ENVIRONMENT}-SNAPSHOT.zip"
-                        // Test anypoint cli
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application list"
-                        // Modifies
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify --property build.number:${API_NAME}-${BUILD_NAME} ${API_NAME}-dev target/${API_NAME}-${BUILD_NAME}.zip"
-
+                        build job: 'mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
                     }
-                  }
+                }
+                // stage('Development - Deploy'){
+                //     when{
+                //         expression { GIT_BRANCH.matches(".*dev/master") && currentBuild.currentResult == 'SUCCESS' }
+                //     }
+                //     // Abstract out into another job
+                //     environment {
+                //         ANYPOINT_USERNAME = "zmailloux" // This needs to change to a ci account
+                //         // https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
+                //         ANYPOINT_PASSWORD = credentials('anypoint-password')
+                //     }
+                //     steps{
+                //         // script{
+                //         //     ANYPOINT_ENV = ENV_MAPPING[RELEASE_ENVIRONMENT]['env']
+                //         // }
+                //         sh 'npm install anypoint-cli@latest'
+                //         // Original
+                //         //sh "./node_modules/anypoint-cli/src/app.js --environment=${ENV_MAPPING[RELEASE_ENVIRONMENT]['env']} runtime-mgr cloudhub-application modify ${ENV_MAPPING[RELEASE_ENVIRONMENT]['app']} target/${API_NAME}-1.0.${BUILD_NUMBER}-${RELEASE_ENVIRONMENT}-SNAPSHOT.zip"
+                //         // Test anypoint cli
+                //         sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application list"
+                //         // Modifies
+                //         sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify --property build.number:${API_NAME}-${BUILD_NAME} ${API_NAME}-dev target/${API_NAME}-${BUILD_NAME}.zip"
+                //
+                //     }
+                //   }
               }
         }
       }
