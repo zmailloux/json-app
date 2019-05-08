@@ -82,7 +82,8 @@ pipeline {
                         // Test anypoint cli
                         sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application list"
                         // Modifies
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify ${API_NAME}-dev target/${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT.zip"
+                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify --property build.number:${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT ${API_NAME}-dev target/${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT.zip"
+
                     }
 
                     post{

@@ -18,6 +18,12 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     <global-property name="example" value="test"/>
     
     <!-- ************ -->
+    <flow name="build-app">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/build" allowedMethods="GET" doc:name="HTTP"/>
+        <set-payload value="${build.number}" doc:name="Set Payload"/>
+    </flow>
+    
+    
     <flow name="version-app">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/version" allowedMethods="GET" doc:name="HTTP"/>
         <set-payload value="${mule.env}" doc:name="Set Payload"/>
