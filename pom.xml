@@ -127,11 +127,11 @@
 			<scope>test</scope>
 		</dependency>
 	<dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-apikit</artifactId>
-            <version>${mule.version}</version>
-            <scope>provided</scope>
-        </dependency> -->
+      <groupId>org.mule.modules</groupId>
+      <artifactId>mule-module-apikit</artifactId>
+      <version>${mule.version}</version>
+      <scope>provided</scope>
+  </dependency>
     </dependencies>
 
 	<repositories>
