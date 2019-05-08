@@ -155,20 +155,58 @@ pipeline {
                   }
               }
 
-              post{
-                success {
-                    script {
-                        if (fileExists("target/munit-reports/coverage")) {
-                            zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
-                        }
-                        if (fileExists("target/site/jacoco")) {
-                            zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
-                        }
-                        stage "Create build output"
-                        archiveArtifacts artifacts: 'target/**/*.zip', fingerprint: true
-                    }
-                }
-              }
+              // post{
+              //   success {
+              //       script {
+              //           if (fileExists("target/munit-reports/coverage")) {
+              //               zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
+              //           }
+              //           if (fileExists("target/site/jacoco")) {
+              //               zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
+              //           }
+              //           stage "Create build output"
+              //           archiveArtifacts artifacts: 'target/**/*.zip', fingerprint: true
+              //       }
+              //   }
+              // }
         }
       }
+      // cleanup {
+      //     deleteDir()
+      // }
+
+    post {
+      always {
+        script {
+          BUILD_COLOR = COLOR_MAP[currentBuild.currentResult]
+          // DISPLAY_NAME = currentBuild.rawBuild.project.parent.displayName
+        }
+
+      }
+      success {
+        script {
+          if (fileExists("target/munit-reports/coverage")) {
+            zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
+          }
+          if (fileExists("target/site/jacoco")) {
+            zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
+          }
+          // if (fileExists("target/munit-reports/coverage") || fileExists("target/site/jacoco")) {
+          //   emailext(
+          //     recipientProviders: [
+          //       [$class: 'DevelopersRecipientProvider'],
+          //       [$class: 'CulpritsRecipientProvider']
+          //     ],
+          //     subject: "${JOB_BASE_NAME} | ${GIT_BRANCH}: Test Reports",
+          //     body: "Test Reports attached",
+          //     attachmentsPattern: "*-report.zip"
+          //   )
+          // }
+        }
+      }
+
+      cleanup {
+        deleteDir()
+      }
+    }
 }
