@@ -7,7 +7,7 @@
     <version>1.0.1</version>
     <packaging>mule</packaging>
 	<name>Mule json-app API</name>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -382,3 +382,4 @@
         <url>http://35.192.53.59:80/artifactory/mvn-rockwell-myrockwell-api</url>
     </snapshotRepository>
 </distributionManagement>
+</project>
