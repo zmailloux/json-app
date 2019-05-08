@@ -126,9 +126,10 @@ pipeline {
         stage('Deployment'){
             stages{
                 stage('Development - Deploy'){
-                    when{
-                        expression { GIT_BRANCH.matches(".*/dev/master") && currentBuild.currentResult == 'SUCCESS' }
-                    }
+                    // when{
+                    //     expression { GIT_BRANCH.matches(".*dev/master") && currentBuild.currentResult == 'SUCCESS' }
+                    // }
+                    // Abstract out into another job
                     environment {
                         ANYPOINT_USERNAME = "zmailloux" // This needs to change to a ci account
                         // https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
