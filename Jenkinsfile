@@ -92,28 +92,30 @@ pipeline {
                       //buildInfo.env.collect()
                       //buildInfo.name = API_NAME
                       server.publishBuildInfo buildInfo
+                      sh "echo ${BRANCH_NAME}"
 
+                      if (BRANCH_NAME == 'dev/master') {
+                        // Promotion logic
+                        def promotionConfig = [
+                            // Mandatory parameters
+                            'buildName'          : buildInfo.name,
+                            'buildNumber'        : buildInfo.number,
+                            'targetRepo'         : 'json-app-prod',
 
-                      // Promotion logic
-                      def promotionConfig = [
-                          // Mandatory parameters
-                          'buildName'          : buildInfo.name,
-                          'buildNumber'        : buildInfo.number,
-                          'targetRepo'         : 'json-app-prod',
+                            // Optional parameters
+                            'comment'            : 'this is the promotion comment',
+                            'sourceRepo'         : 'json-app-dev',
+                            'status'             : 'Released',
+                            'includeDependencies': true,
+                            'copy'               : true,
+                            // 'failFast' is true by default.
+                            // Set it to false, if you don't want the promotion to abort upon receiving the first error.
+                            'failFast'           : true
+                        ]
 
-                          // Optional parameters
-                          'comment'            : 'this is the promotion comment',
-                          'sourceRepo'         : 'json-app-dev',
-                          'status'             : 'Released',
-                          'includeDependencies': true,
-                          'copy'               : true,
-                          // 'failFast' is true by default.
-                          // Set it to false, if you don't want the promotion to abort upon receiving the first error.
-                          'failFast'           : true
-                      ]
-
-                      // Promote build configuration
-                      Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote me please"
+                        // Promote build configuration
+                        Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote me please"
+                      }
 
                     }
                   }
@@ -125,9 +127,6 @@ pipeline {
             stages{
                 stage('Development - Deploy'){
                     when{
-                        not {
-                            changeRequest()
-                        }
                         expression { GIT_BRANCH.matches(".*/dev/master") && currentBuild.currentResult == 'SUCCESS' }
                     }
                     environment {
