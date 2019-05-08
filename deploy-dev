@@ -1,0 +1,21 @@
+pipeline {
+    agent {
+        label 'master'
+    }
+    stages {
+        stage('Deployment') {
+            environment {
+                ANYPOINT_USERNAME = "pannapu" // This needs to change to a ci account
+                ANYPOINT_PASSWORD = credentials('anypoint-password')
+                ARTIFACTORY_PASSWORD = credentials('jfrog-pro-password')
+            }
+            steps {
+                sh 'npm install anypoint-cli@latest'
+                sh 'printenv'
+                sh 'curl -u admin:${ARTIFACTORY_PASSWORD} "http://35.192.53.59:80/artifactory/${api}-dev/build/${api}-${zipFile}" -O -J -L'
+                // Download properties file for application
+                sh "./node_modules/anypoint-cli/src/app.js --environment=Development runtime-mgr cloudhub-application modify --property build.number:${api} ${api}-dev ${api}-${zipFile}"
+            }
+        }
+    }
+}
