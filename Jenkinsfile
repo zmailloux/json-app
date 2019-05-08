@@ -17,7 +17,7 @@ pipeline {
         //RELEASE_VERSION = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/').first() : null }"
         //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
         //BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
-        BRANCH_NAME = "${GIT_BRANCH.replaceAll('\\', '-')}"
+        // BRANCH_NAME = "${GIT_BRANCH.replaceAll('\\', '-')}"
         API_NAME = "json-app"
     }
 
@@ -28,7 +28,8 @@ pipeline {
                 if (BRANCH_NAME == 'dev/master') {
                     BUILD_IDENTIFIER = ""
                 } else {
-                    BUILD_IDENTIFIER = "-${BRANCH_NAME}"
+                    // Replace /'s from the git branch
+                    BUILD_IDENTIFIER = "-${GIT_BRANCH}"
                 }
                 BUILD_NAME = "0.1.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
             }
@@ -78,8 +79,6 @@ pipeline {
                   steps{
                     script{
                       sh 'echo Sending JAR to artifactory'
-                      sh 'echo ls target'
-                      sh 'ls target'
                       // Artifactory pro
                       def server = Artifactory.server 'jfrog-pro'
                       def uploadSpec = """{
@@ -94,8 +93,6 @@ pipeline {
                       buildInfo.env.collect()
                       buildInfo.name = "${API_NAME}${BUILD_IDENTIFIER}"
                       server.upload spec: uploadSpec, buildInfo: buildInfo
-                      //buildInfo.env.collect()
-                      //buildInfo.name = API_NAME
                       server.publishBuildInfo buildInfo
                       sh "echo ${BRANCH_NAME}"
 
@@ -155,26 +152,8 @@ pipeline {
                     }
                   }
               }
-
-              // post{
-              //   success {
-              //       script {
-              //           if (fileExists("target/munit-reports/coverage")) {
-              //               zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
-              //           }
-              //           if (fileExists("target/site/jacoco")) {
-              //               zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
-              //           }
-              //           stage "Create build output"
-              //           archiveArtifacts artifacts: 'target/**/*.zip', fingerprint: true
-              //       }
-              //   }
-              // }
         }
       }
-      // cleanup {
-      //     deleteDir()
-      // }
 
     post {
       always {
