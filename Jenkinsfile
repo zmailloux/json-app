@@ -139,7 +139,7 @@ pipeline {
                     // }
                     steps{
                         sh "echo ABOUT TO RUN DEPLOY"
-                        build job: 'mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
+                        build job: 'zach-mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
                     }
                 }
                 // stage('Development - Deploy'){
