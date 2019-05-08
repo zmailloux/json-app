@@ -74,7 +74,9 @@ pipeline {
                 stage('Storing Artifact in Artifactory'){
                   steps{
                     script{
-                      sh 'echo Sending JAR to artifactory...'
+                      sh 'echo Sending JAR to artifactory'
+                      sh 'echo ls target'
+                      sh 'ls target'
                       // Artifactory pro
                       def server = Artifactory.server 'jfrog-pro'
                       def uploadSpec = """{
@@ -167,6 +169,9 @@ pipeline {
             }
         }
 
+        cleanup {
+            deleteDir()
+        }
 
       }
 }
