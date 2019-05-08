@@ -17,9 +17,9 @@ pipeline {
         //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
         script {
             if (env.BRANCH_NAME == 'dev/master') {
-                BUILD_IDENTIFIER = "${BUILD_NUMBER}"
+                BUILD_IDENTIFIER = ""
             } else {
-                BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
+                BUILD_IDENTIFIER = "-${GIT_BRANCH}"
             }
         }
         //BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
@@ -36,7 +36,7 @@ pipeline {
                 // and create 'M2_SETTINGS' with a path to your settings.xml file.
                 sh "echo ${M2_SETTINGS}"
                 sh "echo ${BUILD_NUMBER}"
-                sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_IDENTIFIER}-SNAPSHOT -s ${M2_SETTINGS}"
+                sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER} -s ${M2_SETTINGS}"
                 // -DskipMunitTests is a temporary fix and should be removed
                 sh "mvn -B clean verify -DskipMunitTests -s ${M2_SETTINGS}"
             }
@@ -87,7 +87,7 @@ pipeline {
                         // Test anypoint cli
                         sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application list"
                         // Modifies
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify --property build.number:${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT ${API_NAME}-dev target/${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT.zip"
+                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify --property build.number:${API_NAME}-1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER} ${API_NAME}-dev target/${API_NAME}-1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER}.zip"
 
                     }
 
