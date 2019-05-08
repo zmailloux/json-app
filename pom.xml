@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ra.one</groupId>
 	<artifactId>json-app</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
     <packaging>mule</packaging>
 	<name>Mule json-app API</name>
 
@@ -370,16 +370,4 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-	<distributionManagement>
-    <repository>
-        <id>central</id>
-        <name>artifactory-artifactory-0-releases</name>
-        <url>http://35.192.53.59:80/artifactory/mvn-rockwell-myrockwell-api</url>
-    </repository>
-    <snapshotRepository>
-        <id>snapshots</id>
-        <name>artifactory-artifactory-0-snapshots</name>
-        <url>http://35.192.53.59:80/artifactory/mvn-rockwell-myrockwell-api</url>
-    </snapshotRepository>
-</distributionManagement>
 </project>
