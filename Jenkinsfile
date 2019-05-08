@@ -17,7 +17,7 @@ pipeline {
         //RELEASE_VERSION = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/').first() : null }"
         //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
         //BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
-        BRANCH_NAME = "${GIT_BRANCH.split('/')[1] : GIT_BRANCH }"
+        BRANCH_NAME = "${GIT_BRANCH.replaceAll('\', '-')}"
         API_NAME = "json-app"
     }
 
