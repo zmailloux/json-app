@@ -99,11 +99,11 @@ pipeline {
                           // Mandatory parameters
                           'buildName'          : buildInfo.name,
                           'buildNumber'        : buildInfo.number,
-                          'targetRepo'         : "${API_NAME}-prod",
+                          'targetRepo'         : 'json-app-prod',
 
                           // Optional parameters
                           'comment'            : 'this is the promotion comment',
-                          'sourceRepo'         : "${API_NAME}-dev",
+                          'sourceRepo'         : 'json-app-dev',
                           'status'             : 'Released',
                           'includeDependencies': true,
                           'copy'               : true,
