@@ -168,9 +168,8 @@ pipeline {
                 }
               }
         }
-        cleanup {
-            deleteDir()
-        }
-
+      }
+      cleanup {
+          deleteDir()
       }
 }
