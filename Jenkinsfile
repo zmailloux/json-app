@@ -128,9 +128,9 @@ pipeline {
         stage('Deployment'){
             stages{
                 stage('Development - Deploy'){
-                    // when{
-                    //     expression { GIT_BRANCH.matches(".*dev/master") && currentBuild.currentResult == 'SUCCESS' }
-                    // }
+                    when{
+                        expression { GIT_BRANCH.matches(".*dev/master") && currentBuild.currentResult == 'SUCCESS' }
+                    }
                     // Abstract out into another job
                     environment {
                         ANYPOINT_USERNAME = "zmailloux" // This needs to change to a ci account
@@ -150,25 +150,24 @@ pipeline {
                         sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify --property build.number:${API_NAME}-1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER} ${API_NAME}-dev target/${API_NAME}-1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER}.zip"
 
                     }
+                  }
+              }
 
-                    post{
-                      success {
-                          script {
-                              if (fileExists("target/munit-reports/coverage")) {
-                                  zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
-                              }
-                              if (fileExists("target/site/jacoco")) {
-                                  zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
-                              }
-                              stage "Create build output"
-                              archiveArtifacts artifacts: 'target/**/*.zip', fingerprint: true
-                          }
-                      }
+              post{
+                success {
+                    script {
+                        if (fileExists("target/munit-reports/coverage")) {
+                            zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
+                        }
+                        if (fileExists("target/site/jacoco")) {
+                            zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
+                        }
+                        stage "Create build output"
+                        archiveArtifacts artifacts: 'target/**/*.zip', fingerprint: true
                     }
                 }
-            }
+              }
         }
-
         cleanup {
             deleteDir()
         }
