@@ -179,7 +179,7 @@ pipeline {
       always {
         script {
           BUILD_COLOR = COLOR_MAP[currentBuild.currentResult]
-          DISPLAY_NAME = currentBuild.rawBuild.project.parent.displayName
+          // DISPLAY_NAME = currentBuild.rawBuild.project.parent.displayName
         }
         // emailext(
         //   recipientProviders: [
@@ -190,10 +190,10 @@ pipeline {
         //   body: "Check console output at ${BUILD_URL} to view the results.",
         //   attachLog: true
         // )
-        slackSend channel: '#myrok-ci',
-          color: BUILD_COLOR,
-          message: "${DISPLAY_NAME} | ${BRANCH_NAME}: *${currentBuild.currentResult}* \nMore info at: ${BUILD_URL}"
-      }
+      //   slackSend channel: '#myrok-ci',
+      //     color: BUILD_COLOR,
+      //     message: "${DISPLAY_NAME} | ${BRANCH_NAME}: *${currentBuild.currentResult}* \nMore info at: ${BUILD_URL}"
+      // }
 
       success {
         script {
