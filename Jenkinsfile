@@ -1,3 +1,6 @@
+def ENV_MAPPING = [ 'dev': [ 'env' : 'Development', 'app': 'json-app-dev'], 'uat': [ 'env' : 'QA', 'app': 'json-app-qa']]
+
+
 pipeline {
     agent { label 'master' }
     // Go to 'Manage Jenkins' -> 'Global Tool Configuration' and create the
@@ -59,7 +62,7 @@ pipeline {
             stages{
                 stage('Development - Deploy'){
                     environment {
-                        ANYPOINT_USERNAME = "zmailloux1" // This needs to change to a ci account
+                        ANYPOINT_USERNAME = "zmailloux" // This needs to change to a ci account
                         // https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
                         ANYPOINT_PASSWORD = credentials('anypoint-password')
                     }
@@ -77,9 +80,9 @@ pipeline {
                         // Original
                         //sh "./node_modules/anypoint-cli/src/app.js --environment=${ENV_MAPPING[RELEASE_ENVIRONMENT]['env']} runtime-mgr cloudhub-application modify ${ENV_MAPPING[RELEASE_ENVIRONMENT]['app']} target/${API_NAME}-1.0.${BUILD_NUMBER}-${RELEASE_ENVIRONMENT}-SNAPSHOT.zip"
                         // Test anypoint cli
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Sandbox' runtime-mgr cloudhub-application list"
+                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application list"
                         // Modifies
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Sandbox' runtime-mgr cloudhub-application modify ${API_NAME} target/${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT.zip"
+                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify ${API_NAME}-dev target/${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT.zip"
                     }
 
                     post{
