@@ -131,12 +131,12 @@ pipeline {
             stages{
 
               stage('Development - Deploy'){
-                    when{
-                        not {
-                            changeRequest()
-                        }
-                        expression { GIT_BRANCH.matches(".*/dev/master") && currentBuild.currentResult == 'SUCCESS' }
-                    }
+                    // when{
+                    //     not {
+                    //         changeRequest()
+                    //     }
+                    //     expression { GIT_BRANCH.matches(".*/dev/master") && currentBuild.currentResult == 'SUCCESS' }
+                    // }
                     steps{
                         build job: 'mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
                     }
