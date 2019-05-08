@@ -15,18 +15,23 @@ pipeline {
         BUILD_COLOR = ""
         //RELEASE_VERSION = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/').first() : null }"
         //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
-        script {
-            if (BRANCH_NAME == 'dev/master') {
-                BUILD_IDENTIFIER = ""
-            } else {
-                BUILD_IDENTIFIER = "-${GIT_BRANCH}"
-            }
-        }
         //BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
         API_NAME = "json-app"
     }
 
     stages {
+        stage('Get Environment'){
+          steps{
+            script {
+                if (BRANCH_NAME == 'dev/master') {
+                    BUILD_IDENTIFIER = ""
+                } else {
+                    BUILD_IDENTIFIER = "-${GIT_BRANCH}"
+                }
+            }
+          }
+        }
+
         stage('Build'){
             steps{
                 // M2_SETTINGS are special maven settings we have that include
