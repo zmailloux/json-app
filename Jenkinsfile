@@ -16,7 +16,7 @@ pipeline {
         //RELEASE_VERSION = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/').first() : null }"
         //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
         script {
-            if (env.BRANCH_NAME == 'dev/master') {
+            if (BRANCH_NAME == 'dev/master') {
                 BUILD_IDENTIFIER = ""
             } else {
                 BUILD_IDENTIFIER = "-${GIT_BRANCH}"
