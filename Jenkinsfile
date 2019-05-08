@@ -95,8 +95,8 @@ pipeline {
                       server.upload spec: uploadSpec, buildInfo: buildInfo
                       server.publishBuildInfo buildInfo
                       sh "echo ${buildInfo}"
-                      sh "echo ${uploadSpec}"
-                      sh "echo ${BRANCH_NAME}"
+                      //sh "echo ${uploadSpec}"
+                      //sh "echo ${BRANCH_NAME}"
 
                       if (BRANCH_NAME == 'dev/master') {
                         // Promotion logic
@@ -138,6 +138,7 @@ pipeline {
                     //     expression { GIT_BRANCH.matches(".*/dev/master") && currentBuild.currentResult == 'SUCCESS' }
                     // }
                     steps{
+                        sh "echo ABOUT TO RUN DEPLOY"
                         build job: 'mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
                     }
                 }
