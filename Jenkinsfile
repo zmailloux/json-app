@@ -29,7 +29,7 @@ pipeline {
                 } else {
                     BUILD_IDENTIFIER = "-${GIT_BRANCH}"
                 }
-                BUILD_NAME = "1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
+                BUILD_NAME = "0.1.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
             }
           }
         }
@@ -194,7 +194,7 @@ pipeline {
       //     color: BUILD_COLOR,
       //     message: "${DISPLAY_NAME} | ${BRANCH_NAME}: *${currentBuild.currentResult}* \nMore info at: ${BUILD_URL}"
       // }
-
+      }
       success {
         script {
           if (fileExists("target/munit-reports/coverage")) {
