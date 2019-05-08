@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>6f2ecc0b-8a4c-4fb9-8926-e0e72f44e39f</groupId>
+	<groupId>com.ra.one</groupId>
 	<artifactId>json-app</artifactId>
     <version>1.0.1</version>
     <packaging>mule</packaging>
-	<name>json-app</name>
+	<name>Mule json-app API</name>
 
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
