@@ -41,7 +41,7 @@ pipeline {
                 // and create 'M2_SETTINGS' with a path to your settings.xml file.
                 sh "echo ${M2_SETTINGS}"
                 sh "echo ${BUILD_NUMBER}"
-                sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER} -s ${M2_SETTINGS}"
+                sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER} -s ${M2_SETTINGS}"
                 // -DskipMunitTests is a temporary fix and should be removed
                 sh "mvn -B clean verify -DskipMunitTests -s ${M2_SETTINGS}"
             }
@@ -89,7 +89,7 @@ pipeline {
                       }"""
                       def buildInfo = Artifactory.newBuildInfo()
                       buildInfo.env.collect()
-                      buildInfo.name = API_NAME
+                      buildInfo.name = "${API_NAME}${BUILD_IDENTIFIER}"
                       server.upload spec: uploadSpec, buildInfo: buildInfo
                       //buildInfo.env.collect()
                       //buildInfo.name = API_NAME
