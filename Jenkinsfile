@@ -68,6 +68,59 @@ pipeline {
             }
         }
 
+
+        stage('Storing artifact'){
+            stages{
+                stage('Storing Artifact in Artifactory'){
+                  steps{
+                    script{
+                      sh 'echo Sending JAR to artifactory...'
+                      // Artifactory pro
+                      def server = Artifactory.server 'jfrog-pro'
+                      def uploadSpec = """{
+                        "files": [
+                          {
+                            "pattern": "target/*.zip",
+                            "target": "${API_NAME}-dev/build/"
+                          }
+                       ]
+                      }"""
+                      def buildInfo = Artifactory.newBuildInfo()
+                      buildInfo.env.collect()
+                      buildInfo.name = API_NAME
+                      server.upload spec: uploadSpec, buildInfo: buildInfo
+                      //buildInfo.env.collect()
+                      //buildInfo.name = API_NAME
+                      server.publishBuildInfo buildInfo
+
+
+                      // Promotion logic
+                      def promotionConfig = [
+                          // Mandatory parameters
+                          'buildName'          : buildInfo.name,
+                          'buildNumber'        : buildInfo.number,
+                          'targetRepo'         : "${API_NAME}-prod",
+
+                          // Optional parameters
+                          'comment'            : 'this is the promotion comment',
+                          'sourceRepo'         : "${API_NAME}-dev",
+                          'status'             : 'Released',
+                          'includeDependencies': true,
+                          'copy'               : true,
+                          // 'failFast' is true by default.
+                          // Set it to false, if you don't want the promotion to abort upon receiving the first error.
+                          'failFast'           : true
+                      ]
+
+                      // Promote build configuration
+                      Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote me please"
+
+                    }
+                  }
+                }
+              }
+            }
+
         stage('Deployment'){
             stages{
                 stage('Development - Deploy'){
