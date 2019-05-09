@@ -1,0 +1,35 @@
+
+pipeline {
+    tools {
+        nodejs "NodeJS"
+    }
+    agent {
+        label 'master'
+    }
+    stages {
+        stage('Deployment') {
+            environment {
+                ANYPOINT_USERNAME = "pannapu" // This needs to change to a ci account
+                ANYPOINT_PASSWORD = credentials('anypoint-password')
+                ARTIFACTORY_PASSWORD = credentials('jfrog-pro-password')
+                api = "json-app"
+            }
+            steps {
+                sh 'npm install anypoint-cli@latest'
+                sh 'printenv'
+                script{
+                  def lastModified = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} http://35.192.53.59/artifactory/api/storage/${api}-qa/build/?lastModified | jq .uri | tr -d '\"'", returnStdout: true).trim()
+                  def build = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${lastModified.trim()} | jq .path | tr -d '\"' | cut -d'/' -f 3", returnStdout: true).trim()
+                  def downloadLink = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${lastModified.trim()} | jq .downloadUri | tr -d '\"'", returnStdout: true).trim()
+                  sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X GET ${downloadLink} -O -J -L")
+                  sh(script: "./node_modules/anypoint-cli/src/app.js --environment=QA runtime-mgr cloudhub-application modify --property build.number:${build} --property mule.env:qa --property json.placeholder.url:albums ${api}-qa ${build}")
+                }
+            }
+        }
+    }
+    post{
+      always{
+        cleanWs()
+      }
+    }
+}
