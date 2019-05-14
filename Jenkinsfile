@@ -102,7 +102,7 @@ pipeline {
                             // Mandatory parameters
                             'buildName'          : buildInfo.name,
                             'buildNumber'        : buildInfo.number,
-                            'targetRepo'         : 'json-app-prod',
+                            'targetRepo'         : 'json-app-qa',
 
                             // Optional parameters
                             'comment'            : 'this is the promotion comment',
