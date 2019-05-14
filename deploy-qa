@@ -30,7 +30,7 @@ pipeline {
                   sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/move/${api}-qa/build/${build}?to=/${api}-qa/latest/${build}")
 
                   // Upload
-                  sh(script: "./node_modules/anypoint-cli/src/app.js --environment=QA runtime-mgr cloudhub-application modify --property build.number:${build} --property mule.env:qa --property json.placeholder.url:albums ${api}-qa ${build}")
+                  sh(script: "./node_modules/anypoint-cli/src/app.js --environment=QA runtime-mgr cloudhub-application modify --property build.version:${build} --property mule.env:qa --property json.placeholder.url:albums ${api}-qa ${build}")
                 }
             }
         }
@@ -49,7 +49,8 @@ pipeline {
               // Move last build from release to previous
               sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/move/${api}-qa/release?to=/${api}-qa/previous/")
               // Move passing build to release
-              sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/copy/${api}-qa/latest/${build}?to=/${api}-qa/release/${build}")
+              //sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/copy/${api}-qa/latest/${build}?to=/${api}-qa/release/${build}")
+              sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/copy/${api}-qa/latest/?to=/${api}-qa/release/")
             }
         }
 
