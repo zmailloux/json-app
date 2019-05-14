@@ -78,6 +78,7 @@ pipeline {
                 stage('Storing Artifact in Artifactory'){
                   steps{
                     script{
+                      TARGET = "${ BRANCH_NAME == 'dev/master' ? "${API_NAME}-dev/build/" : "${API_NAME}-dev/build/${BRANCH_NAME}/" }"
                       sh 'echo Sending JAR to artifactory'
                       // Artifactory pro
                       def server = Artifactory.server 'jfrog-pro'
@@ -85,7 +86,7 @@ pipeline {
                         "files": [
                           {
                             "pattern": "target/*.zip",
-                            "target": "${API_NAME}-dev/build/"
+                            "target": "${TARGET}"
                           }
                        ]
                       }"""
