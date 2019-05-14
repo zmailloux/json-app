@@ -25,22 +25,11 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         Backend Endpoint: ${json.placeholder.url}" doc:name="Set Payload"/>
     </flow>
     
-    <flow name="build-app">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/build" allowedMethods="GET" doc:name="HTTP"/>
-        <set-payload value="${build.number}" doc:name="Set Payload"/>
-    </flow>
-    
-    <http:listener-config name="HTTP_Listener_Configuration_Build" host="0.0.0.0" port="${build.port}" basePath="/build" doc:name="HTTP Listener Configuration Build"/>
-    <flow name="build-app-seperate-port">
-        <http:listener config-ref="HTTP_Listener_Configuration_Build" path="/" allowedMethods="GET" doc:name="HTTP"/>
-        <set-payload value="${build.number}" doc:name="Set Payload"/>
-    </flow>
-    
-    
     <flow name="version-app">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/env" allowedMethods="GET" doc:name="HTTP"/>
-        <set-payload value="${mule.env}" doc:name="Set Payload"/>
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/version" allowedMethods="GET" doc:name="HTTP"/>
+        <set-payload value="${build.version}" doc:name="Set Payload"/>
     </flow>
+    
     
     <flow name="json-app">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/" allowedMethods="GET" doc:name="HTTP"/>
