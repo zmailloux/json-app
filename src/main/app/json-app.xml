@@ -30,13 +30,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <set-payload value="${build.version}" doc:name="Set Payload"/>
     </flow>
     
-    
     <flow name="json-app">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/" allowedMethods="GET" doc:name="HTTP"/>
         <http:request config-ref="HTTPS_JSON_REQUEST" path="/${json.placeholder.url}" method="GET" doc:name="HTTPS"/>
         <set-payload value="#[message.payload]" doc:name="Set Payload"/>
     </flow>
-<!--     <flow name="myProject_flow1">
-    		<logger message="${propertyFromFile}" doc:name="System Property Set in Property File"/>
-	</flow> -->
 </mule>
