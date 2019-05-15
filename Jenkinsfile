@@ -1,4 +1,5 @@
 def ENV_MAPPING = [ 'dev': [ 'env' : 'Development', 'app': 'json-app-dev'], 'uat': [ 'env' : 'QA', 'app': 'json-app-qa']]
+def COLOR_MAP = ['SUCCESS': 'good', 'FAILURE': 'danger', 'UNSTABLE': 'danger', 'ABORTED': 'danger']
 
 
 pipeline {
@@ -13,15 +14,29 @@ pipeline {
     }
     environment {
         BUILD_COLOR = ""
+        //RELEASE_VERSION = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/').first() : null }"
+        //RELEASE_ENVIRONMENT = "${ GIT_BRANCH.matches(".*\\d{1}(?:\\.\\d{1})+.*") ? GIT_BRANCH.split('/')[1] : "dev" }"
+        //BUILD_IDENTIFIER = "${BUILD_NUMBER}_${GIT_BRANCH}"
+        // BRANCH_NAME = "${GIT_BRANCH.replaceAll('\\', '-')}"
         API_NAME = "json-app"
     }
 
     stages {
-        stage('quick'){
-            steps{
-                sh 'ls'
+        stage('Get Environment'){
+          steps{
+            script {
+                if (BRANCH_NAME == 'master') {
+                    BUILD_IDENTIFIER = ""
+                } else {
+                    // Replace /'s from the git branch
+                    BRANCH_NAME = BRANCH_NAME.replaceAll('/', "-")
+                    BUILD_IDENTIFIER = "-${BRANCH_NAME}"
+                }
+                BUILD_NAME = "1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
             }
+          }
         }
+
         stage('Build'){
             steps{
                 // M2_SETTINGS are special maven settings we have that include
@@ -31,7 +46,7 @@ pipeline {
                 // and create 'M2_SETTINGS' with a path to your settings.xml file.
                 sh "echo ${M2_SETTINGS}"
                 sh "echo ${BUILD_NUMBER}"
-                sh "mvn release:update-versions -DdevelopmentVersion=1.0.${BUILD_NUMBER}-SNAPSHOT -s ${M2_SETTINGS}"
+                sh "mvn release:update-versions -DdevelopmentVersion=${BUILD_NAME} -s ${M2_SETTINGS}"
                 // -DskipMunitTests is a temporary fix and should be removed
                 sh "mvn -B clean verify -DskipMunitTests -s ${M2_SETTINGS}"
             }
@@ -58,52 +73,95 @@ pipeline {
             }
         }
 
-        stage('Deployment'){
+
+        stage('Storing artifact'){
             stages{
-                stage('Development - Deploy'){
-                    environment {
-                        ANYPOINT_USERNAME = "zmailloux" // This needs to change to a ci account
-                        // https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
-                        ANYPOINT_PASSWORD = credentials('anypoint-password')
-                    }
-                    // when{
-                    //     not {
-                    //         changeRequest()
-                    //     }
-                    //     expression { GIT_BRANCH.matches(".*/master") && currentBuild.currentResult == 'SUCCESS' }
-                    // }
-                    steps{
-                        // script{
-                        //     ANYPOINT_ENV = ENV_MAPPING[RELEASE_ENVIRONMENT]['env']
-                        // }
-                        sh 'npm install anypoint-cli@latest'
-                        // Original
-                        //sh "./node_modules/anypoint-cli/src/app.js --environment=${ENV_MAPPING[RELEASE_ENVIRONMENT]['env']} runtime-mgr cloudhub-application modify ${ENV_MAPPING[RELEASE_ENVIRONMENT]['app']} target/${API_NAME}-1.0.${BUILD_NUMBER}-${RELEASE_ENVIRONMENT}-SNAPSHOT.zip"
-                        // Test anypoint cli
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application list"
-                        // Modifies
-                        sh "./node_modules/anypoint-cli/src/app.js --environment='Development' runtime-mgr cloudhub-application modify --property build.number:${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT ${API_NAME}-dev target/${API_NAME}-1.0.${BUILD_NUMBER}-SNAPSHOT.zip"
-
-                    }
-
-                    post{
-                      success {
-                          script {
-                              if (fileExists("target/munit-reports/coverage")) {
-                                  zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
-                              }
-                              if (fileExists("target/site/jacoco")) {
-                                  zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
-                              }
-                              stage "Create build output"
-                              archiveArtifacts artifacts: 'target/**/*.zip', fingerprint: true
+                stage('Storing Artifact in Artifactory'){
+                  steps{
+                    script{
+                      TARGET = "${ BRANCH_NAME == 'master' ? "${API_NAME}/build/" : "${API_NAME}/build/${BRANCH_NAME}/" }"
+                      sh 'echo Sending JAR to artifactory'
+                      // Artifactory pro
+                      def server = Artifactory.server 'jfrog-pro'
+                      def uploadSpec = """{
+                        "files": [
+                          {
+                            "pattern": "target/*.zip",
+                            "target": "${TARGET}"
                           }
+                       ]
+                      }"""
+                      def buildInfo = Artifactory.newBuildInfo()
+                      buildInfo.env.collect()
+                      buildInfo.name = "${API_NAME}${BUILD_IDENTIFIER}"
+                      server.upload spec: uploadSpec, buildInfo: buildInfo
+                      server.publishBuildInfo buildInfo
+                      sh "echo ${buildInfo}"
+
+                      if (BRANCH_NAME == 'master') {
+                        // Promotion logic
+                        def promotionConfig = [
+                            // Mandatory parameters
+                            'buildName'          : buildInfo.name,
+                            'buildNumber'        : buildInfo.number,
+                            'targetRepo'         : 'json-app-dev',
+
+                            // Optional parameters
+                            'comment'            : 'this is the promotion comment',
+                            'sourceRepo'         : 'json-app',
+                            'status'             : 'Released',
+                            'includeDependencies': true,
+                            'copy'               : true,
+                            // 'failFast' is true by default.
+                            // Set it to false, if you don't want the promotion to abort upon receiving the first error.
+                            'failFast'           : true
+                        ]
+
+                        // Promote build configuration
+                        Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote build to other environment"
                       }
+
                     }
+                  }
                 }
+              }
             }
-        }
 
-
+        // stage('Deployment'){
+        //     stages{
+        //
+        //       stage('Development - Deploy'){
+        //         when{
+        //             expression { GIT_BRANCH.matches(".*master") && currentBuild.currentResult == 'SUCCESS' }
+        //         }
+        //         steps{
+        //             sh "echo ABOUT TO RUN DEPLOY"
+        //             build job: 'zach-mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
+        //         }
+        //       }
+        //   }
+        // }
       }
+
+    post {
+      always {
+        script {
+          BUILD_COLOR = COLOR_MAP[currentBuild.currentResult]
+        }
+      }
+      success {
+        script {
+          if (fileExists("target/munit-reports/coverage")) {
+            zip dir: "target/munit-reports/coverage", zipFile: "munit-report.zip"
+          }
+          if (fileExists("target/site/jacoco")) {
+            zip dir: "target/site/jacoco", zipFile: "junit-report.zip"
+          }
+        }
+      }
+
+      cleanup {
+        deleteDir()
+      }
+    }
 }

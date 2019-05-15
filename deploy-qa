@@ -1,0 +1,63 @@
+
+pipeline {
+    tools {
+        nodejs "NodeJS"
+    }
+    agent {
+        label 'master'
+    }
+    environment {
+        ANYPOINT_USERNAME = "pannapu" // This needs to change to a ci account
+        ANYPOINT_PASSWORD = credentials('anypoint-password')
+        ARTIFACTORY_PASSWORD = credentials('jfrog-pro-password')
+        //api = "json-app"
+    }
+    stages {
+        stage('Deployment') {
+            steps {
+                sh 'npm install anypoint-cli@latest'
+                sh 'printenv'
+                script{
+                  def lastModified = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} http://35.192.53.59/artifactory/api/storage/${api}-qa/build/?lastModified | jq .uri | tr -d '\"'", returnStdout: true).trim()
+                  def build = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${lastModified.trim()} | jq .path | tr -d '\"' | cut -d'/' -f 3", returnStdout: true).trim()
+                  def downloadLink = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${lastModified.trim()} | jq .downloadUri | tr -d '\"'", returnStdout: true).trim()
+
+                  sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X GET ${downloadLink} -O -J -L")
+
+                  // Remove latest
+                  sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X DELETE http://35.192.53.59/artifactory/${api}-qa/latest")
+                  // Move to latest
+                  sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/move/${api}-qa/build/${build}?to=/${api}-qa/latest/${build}")
+
+                  // Upload
+                  sh(script: "./node_modules/anypoint-cli/src/app.js --environment=QA runtime-mgr cloudhub-application modify --property build.version:${build} --property mule.env:qa --property json.placeholder.url:albums ${api}-qa ${build}")
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'echo run tests'
+            }
+        }
+
+        stage('Release') {
+            // TODO: Only do if passed tests
+            steps {
+              // Delete previous
+              sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X DELETE http://35.192.53.59/artifactory/${api}-qa/previous")
+              // Move last build from release to previous
+              sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/move/${api}-qa/release?to=/${api}-qa/previous/")
+              // Move passing build to release
+              //sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/copy/${api}-qa/latest/${build}?to=/${api}-qa/release/${build}")
+              sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST http://35.192.53.59/artifactory/api/copy/${api}-qa/latest/?to=/${api}-qa/release/")
+            }
+        }
+
+    }
+    post{
+      always{
+        cleanWs()
+      }
+    }
+}

@@ -14,19 +14,20 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     
     <!-- ************ -->
-    <context:property-placeholder location="${mule.env}.properties" />
+    <!-- <context:property-placeholder location="${mule.env}.properties" /> -->
     <global-property name="example" value="test"/>
     
     <!-- ************ -->
-    <flow name="build-app">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/build" allowedMethods="GET" doc:name="HTTP"/>
-        <set-payload value="${build.number}" doc:name="Set Payload"/>
+    <flow name="info-app">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/info" allowedMethods="GET" doc:name="HTTP"/>
+        <set-payload value="Environment: ${mule.env}
+        Build: ${build.number}
+        Backend Endpoint: ${json.placeholder.url}" doc:name="Set Payload"/>
     </flow>
-    
     
     <flow name="version-app">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/version" allowedMethods="GET" doc:name="HTTP"/>
-        <set-payload value="${mule.env}" doc:name="Set Payload"/>
+        <set-payload value="${build.version}" doc:name="Set Payload"/>
     </flow>
     
     <flow name="json-app">
@@ -34,7 +35,4 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <http:request config-ref="HTTPS_JSON_REQUEST" path="/${json.placeholder.url}" method="GET" doc:name="HTTPS"/>
         <set-payload value="#[message.payload]" doc:name="Set Payload"/>
     </flow>
-<!--     <flow name="myProject_flow1">
-    		<logger message="${propertyFromFile}" doc:name="System Property Set in Property File"/>
-	</flow> -->
 </mule>
