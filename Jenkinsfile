@@ -25,7 +25,7 @@ pipeline {
         stage('Get Environment'){
           steps{
             script {
-                if (BRANCH_NAME == 'dev/master') {
+                if (BRANCH_NAME == 'master') {
                     BUILD_IDENTIFIER = ""
                 } else {
                     // Replace /'s from the git branch
@@ -79,7 +79,7 @@ pipeline {
                 stage('Storing Artifact in Artifactory'){
                   steps{
                     script{
-                      TARGET = "${ BRANCH_NAME == 'dev/master' ? "${API_NAME}-dev/build/" : "${API_NAME}-dev/build/${BRANCH_NAME}/" }"
+                      TARGET = "${ BRANCH_NAME == 'master' ? "${API_NAME}/build/" : "${API_NAME}/build/${BRANCH_NAME}/" }"
                       sh 'echo Sending JAR to artifactory'
                       // Artifactory pro
                       def server = Artifactory.server 'jfrog-pro'
@@ -98,17 +98,17 @@ pipeline {
                       server.publishBuildInfo buildInfo
                       sh "echo ${buildInfo}"
 
-                      if (BRANCH_NAME == 'dev/master') {
+                      if (BRANCH_NAME == 'master') {
                         // Promotion logic
                         def promotionConfig = [
                             // Mandatory parameters
                             'buildName'          : buildInfo.name,
                             'buildNumber'        : buildInfo.number,
-                            'targetRepo'         : 'json-app-qa',
+                            'targetRepo'         : 'json-app-dev',
 
                             // Optional parameters
                             'comment'            : 'this is the promotion comment',
-                            'sourceRepo'         : 'json-app-dev',
+                            'sourceRepo'         : 'json-app',
                             'status'             : 'Released',
                             'includeDependencies': true,
                             'copy'               : true,
@@ -118,7 +118,7 @@ pipeline {
                         ]
 
                         // Promote build configuration
-                        Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote me please"
+                        Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote build to other environment"
                       }
 
                     }
@@ -127,20 +127,20 @@ pipeline {
               }
             }
 
-        stage('Deployment'){
-            stages{
-
-              stage('Development - Deploy'){
-                when{
-                    expression { GIT_BRANCH.matches(".*dev/master") && currentBuild.currentResult == 'SUCCESS' }
-                }
-                steps{
-                    sh "echo ABOUT TO RUN DEPLOY"
-                    build job: 'zach-mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
-                }
-              }
-          }
-        }
+        // stage('Deployment'){
+        //     stages{
+        //
+        //       stage('Development - Deploy'){
+        //         when{
+        //             expression { GIT_BRANCH.matches(".*master") && currentBuild.currentResult == 'SUCCESS' }
+        //         }
+        //         steps{
+        //             sh "echo ABOUT TO RUN DEPLOY"
+        //             build job: 'zach-mule-deploy-dev', parameters: [[$class: 'StringParameterValue', name: 'api', value: "${API_NAME}"], [$class: 'StringParameterValue', name: 'zipFile', value: "${BUILD_NAME}.zip"]]
+        //         }
+        //       }
+        //   }
+        // }
       }
 
     post {

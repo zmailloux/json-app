@@ -12,9 +12,18 @@ pipeline {
             steps {
                 sh 'npm install anypoint-cli@latest'
                 sh 'printenv'
-                sh 'curl -u admin:${ARTIFACTORY_PASSWORD} "http://35.192.53.59:80/artifactory/${api}-dev/build/${api}-${zipFile}" -O -J -L'
+                script{
+                  if (branch?.trim()){
+                    sh 'No branch, using /build'
+                    sh 'curl -u admin:${ARTIFACTORY_PASSWORD} "http://35.192.53.59:80/artifactory/${api}-dev/build/${api}-${zipFile}" -O -J -L'
+                  }
+                  else{
+                    sh 'Using branch, using /build/${branch}'
+                    sh 'curl -u admin:${ARTIFACTORY_PASSWORD} "http://35.192.53.59:80/artifactory/${api}-dev/build/${branch}/${api}-${zipFile}" -O -J -L'
+                  }
+                }
                 // Download properties file for application
-                sh "./node_modules/anypoint-cli/src/app.js --environment=Development runtime-mgr cloudhub-application modify --property build.version:${api}-${zipFile} --property mule.env:dev ${api}-dev ${api}-${zipFile}"
+                //sh "./node_modules/anypoint-cli/src/app.js --environment=Development runtime-mgr cloudhub-application modify --property build.version:${api}-${zipFile} --property mule.env:dev ${api}-dev ${api}-${zipFile}"
             }
         }
     }
