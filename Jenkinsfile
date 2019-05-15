@@ -29,7 +29,8 @@ pipeline {
                     BUILD_IDENTIFIER = ""
                 } else {
                     // Replace /'s from the git branch
-                    BUILD_IDENTIFIER = "-${GIT_BRANCH}"
+                    BRANCH_NAME = BRANCH_NAME.replaceAll('/', "-")
+                    BUILD_IDENTIFIER = "-${BRANCH_NAME}"
                 }
                 BUILD_NAME = "1.0.${BUILD_NUMBER}${BUILD_IDENTIFIER}-SNAPSHOT"
             }
