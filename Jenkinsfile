@@ -94,6 +94,7 @@ pipeline {
                       def buildInfo = Artifactory.newBuildInfo()
                       buildInfo.env.collect()
                       buildInfo.name = "${API_NAME}${BUILD_IDENTIFIER}"
+                      buildInfo.retention maxBuilds: 10, deleteBuildArtifacts: true, async: true
                       server.upload spec: uploadSpec, buildInfo: buildInfo
                       server.publishBuildInfo buildInfo
                       sh "echo ${buildInfo}"
@@ -115,6 +116,7 @@ pipeline {
                             // 'failFast' is true by default.
                             // Set it to false, if you don't want the promotion to abort upon receiving the first error.
                             'failFast'           : true
+
                         ]
 
                         // Promote build configuration
@@ -122,6 +124,9 @@ pipeline {
                       }
 
                     }
+                  }
+                  post{
+
                   }
                 }
               }
