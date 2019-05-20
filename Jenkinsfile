@@ -112,7 +112,7 @@ pipeline {
                             'sourceRepo'         : 'json-app',
                             'status'             : 'Released',
                             'deployBuild'        : true,
-                            'deployURL'          : 'https://dbxjenkins.ra.rockwell.com/view/devops-testing/job/zach-mule-deploy/buildWithParameters?token=zach-mule-deploy&api=json-app&deploy_env=dev'
+                            'deployURL'          : 'https://dbxjenkins.ra.rockwell.com/view/devops-testing/job/zach-mule-deploy/buildWithParameters?token=zach-mule-deploy&api=json-app&deploy_env=dev',
                             'includeDependencies': true,
                             'copy'               : true,
                             // 'failFast' is true by default.
