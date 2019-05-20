@@ -82,7 +82,7 @@ pipeline {
                       TARGET = "${ BRANCH_NAME == 'master' ? "${API_NAME}/build/" : "${API_NAME}/build/${BRANCH_NAME}/" }"
                       sh 'echo Sending JAR to artifactory'
                       // Artifactory pro
-                      def server = Artifactory.server 'jfrog-pro'
+                      def server = Artifactory.server 'jfrog-pro-local'
                       def uploadSpec = """{
                         "files": [
                           {
@@ -99,7 +99,7 @@ pipeline {
                       server.publishBuildInfo buildInfo
                       sh "echo ${buildInfo}"
 
-                      if (BRANCH_NAME == 'master') {
+                      // if (BRANCH_NAME == 'master') {
                         // Promotion logic
                         def promotionConfig = [
                             // Mandatory parameters
@@ -123,7 +123,7 @@ pipeline {
                         // Promote build configuration
                         Artifactory.addInteractivePromotion server: server, promotionConfig: promotionConfig, displayName: "Promote build to other environment"
                         sh "echo action after"
-                      }
+                      // }
 
                     }
                   }

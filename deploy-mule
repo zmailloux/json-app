@@ -11,8 +11,10 @@ pipeline {
     environment {
         ANYPOINT_USERNAME = "pannapu" // This needs to change to a ci account
         ANYPOINT_PASSWORD = credentials('anypoint-password')
-        ARTIFACTORY_PASSWORD = credentials('jfrog-pro-password')
-        ARTIFACTORY_URL = "http://35.192.53.59"
+        //ARTIFACTORY_PASSWORD = credentials('jfrog-pro-password')
+        //ARTIFACTORY_URL = "http://35.192.53.59"
+        ARTIFACTORY_PASSWORD = "password"
+        ARTIFACTORY_URL = "http://usazrsrv3018:8081"
     }
     stages {
         stage('Deployment') {
