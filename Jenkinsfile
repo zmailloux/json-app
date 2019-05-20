@@ -82,7 +82,7 @@ pipeline {
                       TARGET = "${ BRANCH_NAME == 'master' ? "${API_NAME}/build/" : "${API_NAME}/build/${BRANCH_NAME}/" }"
                       sh 'echo Sending JAR to artifactory'
                       // Artifactory pro
-                      def server = Artifactory.server 'jfrog-pro'
+                      def server = Artifactory.server 'jfrog-pro-local'
                       def uploadSpec = """{
                         "files": [
                           {
