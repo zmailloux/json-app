@@ -23,9 +23,16 @@ pipeline {
                 sh 'printenv'
                 script{
                   def lastModified = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${ARTIFACTORY_URL}/artifactory/api/storage/${api}-${deploy_env}/build/?lastModified | jq .uri | tr -d '\"'", returnStdout: true).trim()
+                  sh(script: "echo ${lastModified}")
+                  // If it's in a branch
+                  if (lastModified.count("/") > 3){
+                    def branch_path = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${lastModified.trim()} | jq .path | tr -d '\"' | cut -d'/' -f 3-4", returnStdout: true).trim()
+                    sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X POST ${ARTIFACTORY_URL}/artifactory/api/move/${api}-${deploy_env}/build/${branch_path}?to=/${api}-${deploy_env}/build/")
+                  }
+                  lastModified = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${ARTIFACTORY_URL}/artifactory/api/storage/${api}-${deploy_env}/build/?lastModified | jq .uri | tr -d '\"'", returnStdout: true).trim()
                   def build = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${lastModified.trim()} | jq .path | tr -d '\"' | cut -d'/' -f 3", returnStdout: true).trim()
                   def downloadLink = sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} ${lastModified.trim()} | jq .downloadUri | tr -d '\"'", returnStdout: true).trim()
-
+                  sh(script: "echo ${build}")
                   sh(script: "curl -s -u admin:${ARTIFACTORY_PASSWORD} -X GET ${downloadLink} -O -J -L")
 
                   // Remove latest
