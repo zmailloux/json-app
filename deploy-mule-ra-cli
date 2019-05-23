@@ -1,0 +1,59 @@
+def MULE_ENV_MAPPING = [ 'dev': 'Development', 'qa': 'QA']
+
+
+pipeline {
+    tools {
+        nodejs "NodeJS"
+    }
+    agent {
+        label 'master'
+    }
+    environment {
+        ANYPOINT_USERNAME = "pannapu" // This needs to change to a ci account
+        ANYPOINT_PASSWORD = credentials('anypoint-password')
+        //ARTIFACTORY_PASSWORD = credentials('jfrog-pro-password')
+        //ARTIFACTORY_URL = "http://35.192.53.59"
+        ARTIFACTORY_PASSWORD = "password"
+        ARTIFACTORY_URL = "http://usazrsrv3018:8081"
+    }
+    stages {
+        stage('Deployment') {
+            steps {
+                // http://usazrsrv3018:8081
+                sh 'npm install anypoint-cli@latest'
+                sh 'npm install -g https://github.com/RockwellAutomation/rockwell-ci-nodejs-cli#add-artifactory --save'
+                sh 'printenv'
+                script{
+
+                  def build = sh(script: "ra-cli getLatestBuild ${api}-${deploy_env}")
+                  sh(script: "echo ${build}")
+                  sh(script: "ra-cli downloadLatest ${api}-${deploy_env}")
+                  sh(script: "ra-cli markLatest ${api}-${deploy_env} ${build}")
+
+                  // Upload
+                  sh(script: "./node_modules/anypoint-cli/src/app.js --environment=${MULE_ENV_MAPPING[deploy_env]} runtime-mgr cloudhub-application modify --property build.version:${build} --property mule.env:${deploy_env} --property json.placeholder.url:albums ${api}-${deploy_env} ${build}")
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'echo run tests'
+            }
+        }
+
+        stage('Release') {
+            // TODO: Only do if passed tests
+            steps {
+              // Delete previous
+                sh(script: "ra-cli markRelease ${api}-${deploy_env}")
+            }
+        }
+
+    }
+    post{
+      always{
+        cleanWs()
+      }
+    }
+}
